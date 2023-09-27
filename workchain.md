@@ -3,6 +3,8 @@ A distributed computing pattern for separating work across a chain of services.
 
 A chain is comprised of many services where one invokes the other along the chain in an asynchronous way that enables distributed event-driven design.
 
+This decouples subsystem components to expand the surface area for telemetry.
+
 ## Structure
 
 ### Messages
@@ -34,7 +36,7 @@ The message should contain all required information for the Enterprise Service B
             "order": 1,
             "request": {
                "url": "amqp://{user}:{password}@{server}:{port}",
-               "endpoint": "completion-queue",
+               "endpoint": "{queue}",
                "type": "AMQP",
                "method": "publish",
                "payload": "{jsonOrProtoBufferData}",
