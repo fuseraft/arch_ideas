@@ -1,4 +1,4 @@
-# Workflow Chaining
+# Workchain
 A distributed computing pattern for separating work across a chain of services.
 
 A chain is comprised of many services where one invokes the other along the chain in an asynchronous way that enables distributed event-driven design.
@@ -20,7 +20,6 @@ The message should contain all required information for the Enterprise Service B
    "work_message": {
       "hash": "MD5CheckSum",
       "items": [
-         // The first work item, invokes an API endpoint to do work. 
          {
             "order": 0,
             "request": {
@@ -31,7 +30,6 @@ The message should contain all required information for the Enterprise Service B
                "payload": "{jsonOrProtoBufferData}",
             },
          },
-         // The second work item, generates completion message on message queue.
          {
             "order": 1,
             "request": {
@@ -97,11 +95,11 @@ The completion message is to notify subscribers to the completion queue that wor
 
 ### Egress
 
-1. The C add messages to the WQ.
-2. The ESB listens to the WQ and initiates calls to the SG.
-3. The SG invokes the MS.
-4. The MS adds items the NQ.
-5. The NS listens to the NQ and updates the WQ.
+1. The Client adds messages to the Work Queue.
+2. The ESB listens to the Work Queue.
+3. The ESB initiates calls to the Service Gateway.
+4. The Service Gateway invokes the Microservices.
+5. The Microservice adds messages the Notification Queue.
 
 ```
                          +--- [Enterprise Service Bus]
@@ -122,20 +120,23 @@ The completion message is to notify subscribers to the completion queue that wor
 
 ### Ingress
 
-1. The NS updates messages in the WQ.
-2. The C listens to WQ for these updates to know when work is completed.
+1. The Notification Service listens to the Notification Queue.
+2. The Notification Service adds messages to the Completion Queue.
+3. The Client listens to the Completion Queue to know when work is completed.
 
 ```
-        +--- C_MSG   +--- C_MSG
-        |            |
-+----+  v   +----+   v  +---+
-| NS | ===> | CQ | <=== | C |
-+----+      +----+      +---+
-  ^            ^          ^
-  |            |          |
-  |            |          +--- [Client]
-  |            +--- [Completion Queue]
-  +--- [Notification Service]
+   +--- [Notification Queue]
+   |          +--- [Notification Service]
+   |          |     +--- [Completion Queue]
+   |          |     |                 +--- [Client]
+   |          |     |                 | 
+   v          v     |                 v     
++----+      +----+  v   +----+      +---+
+| NQ | <=== | NS | ===> | CQ | <=== | C |
++----+   ^  +----+  ^   +----+   ^  +---+
+         |          |            |
+         +--- N_MSG +--- C_MSG   +--- C_MSG
+                                      
 ```
 ### Glossary
 1. **W_MSG**: Work Message
