@@ -137,31 +137,21 @@ The completion message is to notify subscribers to the completion queue that wor
 | NQ | <=== | NS | ===> | CQ | <=== | C |
 +----+   ^  +----+  ^   +----+   ^  +---+
          |          |            |
-         +--- N_MSG +--- C_MSG   +--- C_MSG
-                                      
+         +--- N_MSG +--- C_MSG   +--- C_MSG                                      
 ```
+
 ### Glossary
-1. **W_MSG**: Work Message
-   1. Defines a work message.
-2. **N_MSG**: Notification Message
-   1. Defines a notification message.
-3. **C_MSG**: Completion Message
-   1. Defines a completion message.
-4. **CQ**: Completion Queue
-   1. Stores C_MSG.
-5. **WQ**: Work Queue
-   1. Stores W_MSG.
-6. **NQ**: Notification Queue
-   1. Stores N_MSG.
-7. **C**: Client
-   1. Adds a W_MSG to the WQ.
-8. **MS**: Microservices
-   1. Adds a N_MSG to the NQ.
-9.  **SG**: Service Gateway
-   1. Invokes the MS, sending W_MSG to the MS.
-10. **ESB**: Enterprise Service Bus
-   1. Listens to WQ.
-   2. Invokes the SG, sending W_MSG to the SG.
-11. **NS**: Notification Service
-   1. Listens to NQ.
-   2. Updates the WQ with N_MSG from the NQ.
+
+| Label | Term | Definition |
+| --- | --- | --- |
+| W_MSG | Work Message | Defines a work message. |
+| N_MSG | Notification Message | Defines a notification message. |
+| C_MSG | Completion Message | Defines a completion message. |
+| CQ | Completion Queue | Stores C_MSG. |
+| WQ | Work Queue | Stores W_MSG. |
+| NQ | Notification Queue | Stores N_MSG. |
+| C | Client | Adds a W_MSG to the WQ. |
+| MS | Microservices | Adds a N_MSG to the NQ. |
+| SG | Service Gateway | Invokes the MS, sending W_MSG to the MS. |
+| ESB | Enterprise Service Bus | Listens to WQ. Invokes the SG, sending W_MSG to the SG. |
+| NS | Notification Service |  Listens to NQ. Updates the WQ with N_MSG from the NQ. |
