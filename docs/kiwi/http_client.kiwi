@@ -1,0 +1,35 @@
+/#
+a simple HTTP client
+#/
+
+struct HttpClient
+  fn new(base_url: string)
+    throw "Invalid URL: ${url}"
+      when !base_url.matches(
+        '^(https?|ftp)://[^\s/$.?#].[^\s]*$'
+      )
+    
+    @base_url = base_url
+    @port = get_scheme() == "http" ? 80 : 443
+  end
+
+  #region HTTP Methods
+  fn GET(endpoint: string)
+    "GET ${endpoint} HTTP/1.1"
+  end
+  #endregion
+
+  #region Helpers
+  fn get_base_url()
+    @base_url
+  end
+
+  fn get_host()
+    @base_url.match('^(?:https?:\/\/)?(?:[^@\/\n]+@)?(?:www\.)?([^:\/\n]+)').first()
+  end
+
+  fn get_scheme()
+    @base_url.split(':').first()
+  end
+  #endregion
+end
