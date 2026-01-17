@@ -1,0 +1,53 @@
+/#
+on "error" with (error_type: string, error_message: string) do
+  eprintln "An error of type " + error_type + " occurred: " + error_message
+end
+
+# Error handling
+try
+  x, y =< [5, 0]
+  println x / y
+catch (x_x, o_O)
+  emit "error" (x_x, o_O) 
+end
+#/
+
+fn generate_hashmap(n: integer): hashmap
+  { n: n }
+end
+
+fn generate_data(count: integer = 1000000): list
+  data, limit =< [[], count]
+  repeat limit as n do
+    data.push(generate_hashmap(n))
+  end
+  data
+end
+
+fn clock_it(message: string, callback: lambda)
+  print "${message} => "
+  t_start = time::ticks()
+  callback()
+  t_stop = time::ticks()
+  t_duration = time::ticksms(t_stop - t_start)
+  print "${t_duration}ms"
+end
+
+var (collection: list = [])
+for i in [1..100] do
+  print "gen ${i} => "
+
+  clock_it("generating", with () do
+    collection.append(generate_data())
+  end)
+
+  print ", "
+
+  clock_it("aggregating", with () do
+    sum = collection.flatten().map(with (x) do x.n end).sum()
+  end)
+
+  print " => " + collection.flatten().size()
+
+  println ""
+end
