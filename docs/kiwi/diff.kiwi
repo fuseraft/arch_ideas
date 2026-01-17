@@ -1,0 +1,65 @@
+fn compare(path_one: string, path_two: string, file_ext: string): hashmap
+  path_one = path_one.replace("/", "\\")
+  path_two = path_two.replace("/", "\\")
+  println "searching "
+  println "  L-parent: ${path_one}"
+  println "  R-parent: ${path_two}"
+  println "  extension: ${file_ext}"
+
+  one_files = fio::glob(path_one, [file_ext]).sort()
+  two_files = fio::glob(path_two, [file_ext]).sort()
+  one_filenames = one_files.map(with (x) do fio::filename(x) end)
+  two_filenames = two_files.map(with (x) do fio::filename(x) end)
+
+  joined = two_filenames.filter(with (l) do one_filenames.contains(l) end)
+  one_files = one_files.filter(with (x) do joined.contains(fio::filename(x)) end)
+  two_files = two_files.filter(with (x) do joined.contains(fio::filename(x)) end)
+
+  println "  found L-files: ${one_files.size()}, R-files: ${two_files.size()}"
+
+  matches = []
+  diffs = []
+
+  for zipped in one_files.zip(two_files) do
+    one, two =< zipped
+    one_bytes = fio::readbytes(one)
+    two_bytes = fio::readbytes(two)
+
+    one_size = one_bytes.size()
+    two_size = two_bytes.size()
+
+    println "    comparing ${fio::filename(one)} with ${fio::filename(two)}"
+    println "      L-bytes: ${one_size}, R-bytes: ${two_size}"
+
+    if one_size == two_size
+      for zipped_bytes in one_bytes.zip(two_bytes) do
+        if zipped_bytes.first() != zipped_bytes.last()
+          println "        byte diff L-byte: ${zipped_bytes.first()}, R-byte: ${zipped_bytes.last()}"
+          diffs.append([one, two])
+          break
+        end
+      end
+    else
+      println "        size mismatch between ${fio::filename(one)} and ${fio::filename(two)}"
+      diffs.append([one, two])
+    end
+  end
+
+  {
+    matches: matches,
+    diffs: diffs
+  }
+end
+
+one_path = "path1"
+two_path = "path2"
+
+java_comparisons = compare(one_path, two_path, "*.CLASS")
+sql_comparisons = compare("${one_path}/dbscripts/Data", "${two_path}/dbscripts/Data", "*.SQL")
+extproj_comparisons = compare("path1/dbscripts/admin", "${two_path}/dbscripts/admin", ".\\**\\*.EXTPROJ.SQL")
+
+/#
+println "java diffs: ${java_comparisons.diffs}"
+println "sql diffs: ${sql_comparisons.diffs}"
+println "extproj diffs: ${extproj_comparisons.matches}"
+#/
