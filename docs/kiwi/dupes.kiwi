@@ -1,0 +1,42 @@
+#!/usr/bin/env kiwi
+
+# find all csv files in the files directory
+path = '.\files'
+files = fio::glob(path, ["./**/*.csv"]).map(with (x) do
+  { "path": x, "filesize": fio::filesize(x) }
+end)
+
+# determine the largest file
+largest_file = files.sort(with (x, y) do x.filesize > y.filesize end).first()
+
+# extract the first column of values in the csv file
+lines = fio::readlines(largest_file.path)
+csv_header = [lines.first()]
+lines = lines.map(with (x) do x.split(',').first() end)
+
+# determine which files contain duplicates
+counter = {}
+for line in lines do
+  if counter.has_key(line)
+    counter.set(line, counter.get(line) + 1)
+  else
+    counter.set(line, 1)
+  end
+end
+
+# convert the hashmap to a list where each has count > 1, sorted by count in descending order
+counter = counter
+  .keys().map(with (x) do { "value": x, "count": counter[x] } end)
+  .filter(with (x) do x.count > 1 end)
+  .sort(with(x, y) do x.count > y.count end)
+
+/#
+# print the top 10
+println counter.take(10).pretty()
+#/
+
+# inspect the top dupe
+top_dupe = counter[1].value
+lines = csv_header.concat(fio::readlines(largest_file.path).filter(with (x) do x.begins_with(top_dupe) end))
+
+fio::writeln("output.csv", lines)
